@@ -20,8 +20,10 @@ from random import *
 currentX = 1
 currentY = 2
 magicChar = 59 # 59 = ;
+finishedChar = 39 # 39 = '
 questionPhrases = list()
 overlayActivated = False
+finishedAnswer = False
 currentPhrase = ""
 phrasePosition=0
 totalPhraseLength=0
@@ -40,9 +42,17 @@ def initInterface():
     curses.cbreak()
     stdscr.clear()
     stdscr.border(0)
-    stdscr.addstr(1,width/2,'iKnow',curses.A_BOLD)
-    stdscr.addstr(2,(width/2)-5,'The All Knowing Bot',curses.A_DIM)
-    #stdscr.addstr(4,(width/2)-15,"Tejeshwar Sangam (tsangame@uark.edu)")
+    stringLogo = """
+ _ _                           _           _   
+(_) | ___ __   _____      __   | |__   ___ | |_ 
+| | |/ / '_ \ / _ \ \ /\ / /   | '_ \ / _ \| __|
+| |   <| | | | (_) \ V  V /    | |_) | (_) | |_ 
+|_|_|\_\_| |_|\___/ \_/\_/     |_.__/ \___/ \__|
+                                              
+"""    
+    stdscr.addstr(1,width/2,stringLogo,curses.A_BLINK)
+    #stdscr.addstr(2,(width/2)-5,'The All Knowing Bot',curses.A_DIM)
+    stdscr.addstr(8,(width/2)-10,"Tejeshwar Sangam (tsangame@uark.edu)")
     stdscr.refresh()
 
 def breakDownInterface():
@@ -58,9 +68,17 @@ def drawTextBox():
     global tbox
     global tboxWidth
     global tboxHeight
-    tboxHeight = 10
-    tboxWidth = width-10
-    tbox=stdscr.subwin(tboxHeight, tboxWidth, 10, 4)
+    global tboxXpos
+    global tboxYpos
+    global paddingRight
+    global paddingBottom
+    tboxXpos = 12
+    tboxYpos = 4
+    paddingRight = 10
+    paddingBottom = 3
+    tboxHeight = height-tboxXpos - paddingBottom
+    tboxWidth = width - paddingRight
+    tbox=stdscr.subwin(tboxHeight, tboxWidth, tboxXpos, tboxYpos)
     tbox.box()
     tbox.addstr(0,1,"Ask me a Question!") #textbox header
     tbox.move(currentY, currentX)
@@ -72,30 +90,32 @@ def drawAnswers():
     global tboxWidth
     global tboxHeight
     global answerPhrase
+    global tboxXpos
+    global tboxYpos
+    global paddingRight
+    global paddingBottom    
     tbox.clear() # clean up text the user might have entered.
     stdscr.refresh()
     if(answerPhrase.strip()==""):
         answerPhrase = "Sorry, I only answer to TJ"
     if(answerPhrase.strip()=="dd"):
         answerPhrase = "Sorry, I'm afraid I don't know the answer to that question."
-    tboxHeight = 10
-    tboxWidth = width-10
-    replyTbox=stdscr.subwin(tboxHeight, tboxWidth, 10, 4)
+    replyTbox=stdscr.subwin(tboxHeight, tboxWidth, tboxXpos, tboxYpos)
     replyTbox.box()
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     replyTbox.addstr(0,2,"iKnow bot Replies",curses.color_pair(1)) #reply box header
-    replyTbox.addstr(2,1, str(answerPhrase) ,curses.color_pair(2))
+    replyTbox.addstr(2,2, str(answerPhrase) ,curses.color_pair(2))
     replyTbox.move(2, 1)
     replyTbox.refresh()
     stdscr.refresh()
-    buffer = stdscr.getch()
+    buffer = stdscr.getch() #wait for keypress
 
 def addtoTbox(characterEntity):
     #prints text to our textbox
     global currentX
     global currentY
-    if(characterEntity == 127):
+    if(characterEntity == 127): #handle backspaces
         if (currentX >= 2):
             currentX = currentX - 1
             tbox.move(currentY, currentX)
@@ -120,11 +140,15 @@ def addOverlayText(characterEntity):
     global totalPhraseLength
     global currentPhrase
     global answerPhrase
-    answerPhrase = str(answerPhrase) + str(chr(characterEntity))
+    global finishedAnswer 
+    if(characterEntity==finishedChar): #if encouterd finished key
+        finishedAnswer = True
+    if(not finishedAnswer):
+        answerPhrase = str(answerPhrase) + str(chr(characterEntity))
     if(phrasePosition>totalPhraseLength-1):
         return
     else:
-        if(characterEntity==127):
+        if(characterEntity==127): #handle backspace
             answerPhrase = answerPhrase[:-1]
         addtoTbox(ord(currentPhrase[phrasePosition]))
         phrasePosition = phrasePosition + 1
@@ -138,6 +162,7 @@ def handleText(currentInputChar):
         else:
             overlayActivated = True
         return
+    #print ": " + str(currentInputChar)
     if(overlayActivated): #if in overlay mode, call overlay function
         addOverlayText(currentInputChar)
     else:
@@ -165,6 +190,7 @@ def initialize():
     global overlayActivated
     global phrasePosition
     global answerPhrase
+    global finishedAnswer
     #setup the environment again
     initInterface()
     populatePhrases()
@@ -176,6 +202,7 @@ def initialize():
     currentX = 1
     currentY = 2
     overlayActivated = False
+    finishedAnswer = False
     phrasePosition=0
     answerPhrase = ""
     tbox.move(currentY, currentX)
