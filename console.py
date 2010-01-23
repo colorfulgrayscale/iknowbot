@@ -1,3 +1,5 @@
+#adapted from http://stackoverflow.com/questions/566746/console
+
 import os
 
 def getTerminalSize():
