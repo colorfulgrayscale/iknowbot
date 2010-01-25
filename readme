@@ -1,9 +1,10 @@
-this is a prank program in which the user can ask any question to the "bot" and it will reply to seemingly any question. great way to freak your friends out.
+iknow bot is a bot which can seemingly answer any question put to it.
+this is a prank program which is built in a way to create an illusion of knowing answers to question put up by the user. A great way to freak your friends out.
 
 USAGE
 -----
 
-when you hit the ';' key, the text box will go into 'overlay' mode. This means no matter what you type it will only print a pre-selected text into your textbox. And the text you are actually typing in is stored into a buffer. When you hit ';' again, it turns off overlay mode. When you finally hit enter, it will print the data in the buffer.
+You can enter your question in the textbox. The trick lies in an overlay text which is trigged with a special key. When this overlay mode is activated, no matter what you type on your keyboard, a pre selected text is displayed. when you hit the ';' key, the text box will go into 'overlay' mode. This means no matter what you type it will only print a pre-selected text into your textbox. And the text you are actually typing in is stored into a buffer. When you hit ';' again, it turns off overlay mode. When you finally hit enter, it will print the data in the buffer.
  
 If you want to terminate the answer but want to continue to print the preselected text use the single quotes key '
- 
+
